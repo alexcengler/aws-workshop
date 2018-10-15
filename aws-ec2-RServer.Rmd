@@ -90,7 +90,13 @@ Then SSH into the EC2 Node (the -i flag creates an interactive shell). `ec2-user
 ssh -i keyname.pem ec2-user@instance-DNS
 ```
 
-ssh -i aws-workshop.pem ec2-user@ec2-18-216-143-106.us-east-2.compute.amazonaws.com
+This might looks like this:
+
+```bash
+ssh -i aws-workshop.pem ec2-user@ec2-58-214-143-126.us-east-2.compute.amazonaws.com
+```
+
+Note, the ec2-user is specific to the AWS version of Linux for EC2. Using AWS Elastic MapReduce, you'd need to use the user `hadoop`, and using an Ubuntu version of Linux, you'd need to use `Ubuntu`.
 
 
 #### Installations in Linux
@@ -125,7 +131,6 @@ Next, we can execute some R code from the command line, in this case, installing
 ```bash
 sudo R -e "install.packages(c('shiny','doParallel'), repos='http://cran.rstudio.com/')"
 ```
-
 We can also add a new user to the machine, which is automatically granted R Studio access (this is a useful feature of R Studio).
 
 ```bash
@@ -133,20 +138,31 @@ sudo useradd ec2-user
 echo ec2-user:RisGreat | sudo chpasswd 
 ```
 
+At this stage, you can use your web browser to actually visit the R Studio GUI, where you could run R code as you would normally, except it will be running on the remote cloud machine. To do this, simply go to the
+
+```bash
+DNS:8787
+```
+
+This might look like:
+
+```bash
+http://ec2-12-206-187-37.us-east-2.compute.amazonaws.com:8787/
+```
+
+#### Bringing in Data and Code
+
 You can use the AWS CLI in your remote machine as well, below copying in a file from  one of my S3 buckets. This is possible since I made made this S3 bucket public, but you could also grant your remote machine with AWS credentials. Given the incredibly open access settings we created for this machine, that is likely to be a very bad idea.
 
 ```bash
 aws s3 cp s3://lsdm-util/parallel-RF.R ./
 ```
 
-Instead, let's install Git:
+Instead, let's install Git and clone a repository with some R code in it.
 
 ```bash
 sudo yum install -y git
-```
-
-And we can use git clone to grab a repository with the pertinent R code:
-
-```bash
 git clone https://github.com/alexcengler/aws-workshop.git
 ```
+
+If you now refresh the file, you'll now see the github repo in the file directory for R, allowing you to open the R code that was in the repo.

@@ -1,6 +1,10 @@
 library(parallel)
 library(doParallel)
-library(randomForest)
+library(caret)
+
+cl <- makePSOCKcluster(5)
+registerDoParallel(cl)
+
 
 set.seed(1318)
 n <- 500
@@ -15,6 +19,14 @@ rfFit <- function(i, Y, X) {
     out <- randomForest(y = Y[-i], x = X[-i, ], xtest = X[i, ])
     return(out$test$predicted)
 }
+
+
+## All subsequent models are then run in parallel
+model <- train(y ~ ., data = training, method = "rf")
+
+## When you are done:
+stopCluster(cl)
+
 
 nCores <- 3 
 registerDoParallel(nCores) 

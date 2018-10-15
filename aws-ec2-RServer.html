@@ -191,7 +191,9 @@ $(document).ready(function () {
 <pre class="bash"><code>chmod 400 aws-workshop.pem`</code></pre>
 <p>Then SSH into the EC2 Node (the -i flag creates an interactive shell). <code>ec2-user</code> is the default user for AWS Amazon Machine Images, whereas an Ubuntu Linux machine will have a default user of <code>ubuntu</code> and the default user name of <code>hadoop</code> for AMS Elastic MapReduce (EMR).</p>
 <pre class="bash"><code>ssh -i keyname.pem ec2-user@instance-DNS</code></pre>
-<p>ssh -i aws-workshop.pem <a href="mailto:ec2-user@ec2-18-216-143-106.us-east-2.compute.amazonaws.com">ec2-user@ec2-18-216-143-106.us-east-2.compute.amazonaws.com</a></p>
+<p>This might looks like this:</p>
+<pre class="bash"><code>ssh -i aws-workshop.pem ec2-user@ec2-58-214-143-126.us-east-2.compute.amazonaws.com</code></pre>
+<p>Note, the ec2-user is specific to the AWS version of Linux for EC2. Using AWS Elastic MapReduce, you’d need to use the user <code>hadoop</code>, and using an Ubuntu version of Linux, you’d need to use <code>Ubuntu</code>.</p>
 </div>
 <div id="installations-in-linux" class="section level4">
 <h4>Installations in Linux</h4>
@@ -211,12 +213,19 @@ ls</code></pre>
 <p>We can also add a new user to the machine, which is automatically granted R Studio access (this is a useful feature of R Studio).</p>
 <pre class="bash"><code>sudo useradd ec2-user
 echo ec2-user:RisGreat | sudo chpasswd </code></pre>
+<p>At this stage, you can use your web browser to actually visit the R Studio GUI, where you could run R code as you would normally, except it will be running on the remote cloud machine. To do this, simply go to the</p>
+<pre class="bash"><code>DNS:8787</code></pre>
+<p>This might look like:</p>
+<pre class="bash"><code>http://ec2-12-206-187-37.us-east-2.compute.amazonaws.com:8787/</code></pre>
+</div>
+<div id="bringing-in-data-and-code" class="section level4">
+<h4>Bringing in Data and Code</h4>
 <p>You can use the AWS CLI in your remote machine as well, below copying in a file from one of my S3 buckets. This is possible since I made made this S3 bucket public, but you could also grant your remote machine with AWS credentials. Given the incredibly open access settings we created for this machine, that is likely to be a very bad idea.</p>
 <pre class="bash"><code>aws s3 cp s3://lsdm-util/parallel-RF.R ./</code></pre>
-<p>Instead, let’s install Git:</p>
-<pre class="bash"><code>sudo yum install -y git</code></pre>
-<p>And we can use git clone to grab a repository with the pertinent R code:</p>
-<pre class="bash"><code>git clone https://github.com/alexcengler/aws-workshop.git</code></pre>
+<p>Instead, let’s install Git and clone a repository with some R code in it.</p>
+<pre class="bash"><code>sudo yum install -y git
+git clone https://github.com/alexcengler/aws-workshop.git</code></pre>
+<p>If you now refresh the file, you’ll now see the github repo in the file directory for R, allowing you to open the R code that was in the repo.</p>
 </div>
 </div>
 
