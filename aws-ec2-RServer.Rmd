@@ -166,3 +166,13 @@ git clone https://github.com/alexcengler/aws-workshop.git
 ```
 
 If you now refresh the file, you'll now see the github repo in the file directory for R, allowing you to open the R code that was in the repo.
+
+#### Infrastructure as Code
+
+Instead of working through this long process manually, we can use the AWS command line and a bash script to automate the entire process. We use `aws ec2 run-instances` with an image-id (this is the AWS Linux Machine Image), a count (number of instances), the instance type, the private key name, and an id for the security group. 
+
+```bash
+aws ec2 run-instances --image-id ami-0552e3455b9bc8d50 --count 1 --instance-type t3.small --key-name aws-workshop --security-group-ids sg-0f3fa78cdd06d68f7
+```
+
+Notably, in this case we have created the security group in advance. You can do this in the EC2 console, under the 'Security Groups' section of the menu on the left of the page. After creating a security group, it will be assigned an ID, which is what you see being passed to the AWS CLI line above. 
