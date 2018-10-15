@@ -1,7 +1,7 @@
 #!/bin/bash 
 set -x –e
 
-yum update 
+yum update -y
 yum install -y R
 
 wget https://download2.rstudio.org/rstudio-server-rhel-1.1.456-x86_64.rpm 

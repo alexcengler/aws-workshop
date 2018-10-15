@@ -177,13 +177,18 @@ aws ec2 run-instances --image-id ami-0552e3455b9bc8d50 --count 1 --instance-type
   
 Notably, in this case we have created the security group in advance. You can do this in the EC2 console, under the 'Security Groups' section of the menu on the left of the page. After creating a security group, it will be assigned an ID, which is what you see being passed to the AWS CLI line above. 
 
-Finally, we can rewrite our earlier linux bash command into one script, which I have done below (and also saved in this repository as `ec2-rserver.sh`). You can see that code below, with only two minor changes. I added `#!/bin/bash`, which signals that this file should be run as a bash script. Then, I added `set -x –e`, in which `-e` sets an option to exit the bootstrap (which will terminate the instance) if there is any error code. `-x` enables the xtrace option, which is useful for printing to logs and I recommend that you do it as well.
+Finally, we can rewrite our earlier linux bash command into one script, which I have done below (and also saved in this repository as `ec2-rserver.sh`). You can see that code below, with only a few minor changes. 
+
+(1) I added `#!/bin/bash`, which signals that this file should be run as a bash script. 
+(2) Then, I added `set -x –e`, in which `-e` sets an option to exit the bootstrap (which will terminate the instance) if there is any error code. `-x` enables the xtrace option, which is useful for printing to logs and I recommend that you do it as well.
+(3) I removed `sudo`, since these user files are run as the root user.
+(4) I added `-y` flag to `yum update`, since you cannot run commands that need user response (since this is not an interactive shell).
 
 ```bash
 #!/bin/bash 
 set -x –e
 
-yum update 
+yum update -y
 yum install -y R
 
 wget https://download2.rstudio.org/rstudio-server-rhel-1.1.456-x86_64.rpm 
