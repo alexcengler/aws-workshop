@@ -174,5 +174,43 @@ Instead of working through this long process manually, we can use the AWS comman
 ```bash
 aws ec2 run-instances --image-id ami-0552e3455b9bc8d50 --count 1 --instance-type t3.small --key-name aws-workshop --security-group-ids sg-0f3fa78cdd06d68f7
 ```
-
+  
 Notably, in this case we have created the security group in advance. You can do this in the EC2 console, under the 'Security Groups' section of the menu on the left of the page. After creating a security group, it will be assigned an ID, which is what you see being passed to the AWS CLI line above. 
+
+Finally, we can rewrite our earlier linux bash command into one script, which I have done below (and also saved in this repository as `ec2-rserver.sh`). You can see that code below, with only two minor changes. I added `#!/bin/bash`, which signals that this file should be run as a bash script. Then, I added `set -x –e`, in which `-e` sets an option to exit the bootstrap (which will terminate the instance) if there is any error code. `-x` enables the xtrace option, which is useful for printing to logs and I recommend that you do it as well.
+
+```bash
+#!/bin/bash 
+set -x –e
+
+yum update 
+yum install -y R
+
+wget https://download2.rstudio.org/rstudio-server-rhel-1.1.456-x86_64.rpm 
+
+yum install rstudio-server-rhel-1.1.456-x86_64.rpm -y
+
+rm rstudio-server-rhel-1.1.456-x86_64.rpm
+
+R -e "install.packages(c('shiny','doParallel'), repos='http://cran.rstudio.com/')"
+
+useradd ec2-user
+echo ec2-user:RisGreat | sudo chpasswd 
+
+yum install -y git
+git clone https://github.com/alexcengler/aws-workshop.git
+```
+
+Having done this and saved the file as ec2-rserver.sh, we can use `aws ec2 run-instances` to run through the entire process of automating our cloud machine launch. 
+
+```bash
+aws ec2 run-instances --image-id ami-0b59bfac6be064b78 --count 1 --instance-type t3.small --key-name aws-workshop --security-group-ids sg-0f3fa78cdd06d68f7 --user-data file://ec2-rserver.sh
+```
+And then you should be able to ssh into the machine as normal, or visit the RStudio Server at  `DNS:8787`.
+
+```bash
+ssh -i "aws-workshop.pem" ec2-user@DNS
+```
+
+ssh -i "aws-workshop.pem" ec2-user@http://ec2-18-223-115-144.us-east-2.compute.amazonaws.com
+
