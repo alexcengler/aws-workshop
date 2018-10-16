@@ -180,10 +180,14 @@ Notably, in this case we have created the security group in advance. You can do 
 Finally, we can rewrite our earlier linux bash command into one script, which I have done below (and also saved in this repository as `ec2-rserver.sh`). You can see that code below, with only a few minor changes. 
 
 (1) I added `#!/bin/bash`, which signals that this file should be run as a bash script. 
+
 (2) Then, I added `set -x –e`, in which `-e` sets an option to exit the bootstrap (which will terminate the instance) if there is any error code. `-x` enables the xtrace option, which is useful for printing to logs and I recommend that you do it as well.
+
 (3) I removed `sudo`, since these user files are run as the root user.
+
 (4) I added `-y` flag to `yum update`, since you cannot run commands that need user response (since this is not an interactive shell).
-(5) I specified the path of the git clone to /home/test/aws-workshop, which is where it would have been in my prior manual instance launches (note that `/home` in this case is home of the root user during the installation process, not home of the `ec2-user` we have been ssh'ing into the machine as).
+
+(5) I specified the path of the git clone to /home/test/aws-workshop, which is the equivalent location for where this repository would have been in my prior manual instance launches (note that `/home` in this case is home of the root user during the installation process, not home of the `ec2-user` we have been ssh'ing into the machine as).
 
 ```bash
 #!/bin/bash 
@@ -207,7 +211,7 @@ yum install -y git
 git clone https://github.com/alexcengler/aws-workshop.git /home/test/aws-workshop
 ```
 
-Having done this and saved the file as ec2-rserver.sh, we can use `aws ec2 run-instances` to run through the entire process of automating our cloud machine launch. 
+Having done this and saved the file as `ec2-rserver.sh`, we can use `aws ec2 run-instances` to run through the entire process of automating our cloud machine launch. 
 
 ```bash
 aws ec2 run-instances --image-id ami-0b59bfac6be064b78 --count 1 --instance-type t3.small --key-name aws-workshop --security-group-ids sg-0f3fa78cdd06d68f7 --user-data file://ec2-rserver.sh
