@@ -227,6 +227,43 @@ echo ec2-user:RisGreat | sudo chpasswd </code></pre>
 git clone https://github.com/alexcengler/aws-workshop.git</code></pre>
 <p>If you now refresh the file, you’ll now see the github repo in the file directory for R, allowing you to open the R code that was in the repo.</p>
 </div>
+<div id="infrastructure-as-code" class="section level4">
+<h4>Infrastructure as Code</h4>
+<p>Instead of working through this long process manually, we can use the AWS command line and a bash script to automate the entire process. We use <code>aws ec2 run-instances</code> with an image-id (this is the AWS Linux Machine Image), a count (number of instances), the instance type, the private key name, and an id for the security group.</p>
+<pre class="bash"><code>aws ec2 run-instances --image-id ami-0552e3455b9bc8d50 --count 1 --instance-type t3.small --key-name aws-workshop --security-group-ids sg-0f3fa78cdd06d68f7</code></pre>
+<p>Notably, in this case we have created the security group in advance. You can do this in the EC2 console, under the ‘Security Groups’ section of the menu on the left of the page. After creating a security group, it will be assigned an ID, which is what you see being passed to the AWS CLI line above.</p>
+<p>Finally, we can rewrite our earlier linux bash command into one script, which I have done below (and also saved in this repository as <code>ec2-rserver.sh</code>). You can see that code below, with only a few minor changes.</p>
+<ol style="list-style-type: decimal">
+<li>I added <code>#!/bin/bash</code>, which signals that this file should be run as a bash script.</li>
+<li>Then, I added <code>set -x –e</code>, in which <code>-e</code> sets an option to exit the bootstrap (which will terminate the instance) if there is any error code. <code>-x</code> enables the xtrace option, which is useful for printing to logs and I recommend that you do it as well.</li>
+<li>I removed <code>sudo</code>, since these user files are run as the root user.</li>
+<li>I added <code>-y</code> flag to <code>yum update</code>, since you cannot run commands that need user response (since this is not an interactive shell).</li>
+<li>I specified the path of the git clone to /home/test/aws-workshop, which is where it would have been in my prior manual instance launches (note that <code>/home</code> in this case is home of the root user during the installation process, not home of the <code>ec2-user</code> we have been ssh’ing into the machine as).</li>
+</ol>
+<pre class="bash"><code>#!/bin/bash 
+set -x –e
+
+yum update -y
+yum install -y R
+
+wget https://download2.rstudio.org/rstudio-server-rhel-1.1.456-x86_64.rpm 
+
+yum install rstudio-server-rhel-1.1.456-x86_64.rpm -y
+
+rm rstudio-server-rhel-1.1.456-x86_64.rpm
+
+R -e &quot;install.packages(c('shiny','doParallel'), repos='http://cran.rstudio.com/')&quot;
+
+useradd test
+echo test:test_pw | chpasswd 
+
+yum install -y git
+git clone https://github.com/alexcengler/aws-workshop.git /home/test/aws-workshop</code></pre>
+<p>Having done this and saved the file as ec2-rserver.sh, we can use <code>aws ec2 run-instances</code> to run through the entire process of automating our cloud machine launch.</p>
+<pre class="bash"><code>aws ec2 run-instances --image-id ami-0b59bfac6be064b78 --count 1 --instance-type t3.small --key-name aws-workshop --security-group-ids sg-0f3fa78cdd06d68f7 --user-data file://ec2-rserver.sh</code></pre>
+<p>And then you should be able to ssh into the machine as normal. Alternatively you can visit the RStudio Server at <code>DNS:8787</code> and login with username ‘test’ and password ‘test_pw’. Please note it might take 4-6 minutes to go through these installations.</p>
+<pre class="bash"><code>ssh -i &quot;aws-workshop.pem&quot; ec2-user@DNS</code></pre>
+</div>
 </div>
 
 

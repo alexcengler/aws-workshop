@@ -183,6 +183,7 @@ Finally, we can rewrite our earlier linux bash command into one script, which I 
 (2) Then, I added `set -x –e`, in which `-e` sets an option to exit the bootstrap (which will terminate the instance) if there is any error code. `-x` enables the xtrace option, which is useful for printing to logs and I recommend that you do it as well.
 (3) I removed `sudo`, since these user files are run as the root user.
 (4) I added `-y` flag to `yum update`, since you cannot run commands that need user response (since this is not an interactive shell).
+(5) I specified the path of the git clone to /home/test/aws-workshop, which is where it would have been in my prior manual instance launches (note that `/home` in this case is home of the root user during the installation process, not home of the `ec2-user` we have been ssh'ing into the machine as).
 
 ```bash
 #!/bin/bash 
@@ -199,11 +200,11 @@ rm rstudio-server-rhel-1.1.456-x86_64.rpm
 
 R -e "install.packages(c('shiny','doParallel'), repos='http://cran.rstudio.com/')"
 
-useradd ec2-user
-echo ec2-user:RisGreat | sudo chpasswd 
+useradd test
+echo test:test_pw | chpasswd 
 
 yum install -y git
-git clone https://github.com/alexcengler/aws-workshop.git
+git clone https://github.com/alexcengler/aws-workshop.git /home/test/aws-workshop
 ```
 
 Having done this and saved the file as ec2-rserver.sh, we can use `aws ec2 run-instances` to run through the entire process of automating our cloud machine launch. 
@@ -211,11 +212,8 @@ Having done this and saved the file as ec2-rserver.sh, we can use `aws ec2 run-i
 ```bash
 aws ec2 run-instances --image-id ami-0b59bfac6be064b78 --count 1 --instance-type t3.small --key-name aws-workshop --security-group-ids sg-0f3fa78cdd06d68f7 --user-data file://ec2-rserver.sh
 ```
-And then you should be able to ssh into the machine as normal, or visit the RStudio Server at  `DNS:8787`.
+And then you should be able to ssh into the machine as normal. Alternatively you can visit the RStudio Server at  `DNS:8787` and login with username 'test' and password 'test_pw'. Please note it might take 4-6 minutes to go through these installations.
 
 ```bash
 ssh -i "aws-workshop.pem" ec2-user@DNS
 ```
-
-ssh -i "aws-workshop.pem" ec2-user@http://ec2-18-223-115-144.us-east-2.compute.amazonaws.com
-

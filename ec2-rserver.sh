@@ -12,8 +12,8 @@ rm rstudio-server-rhel-1.1.456-x86_64.rpm
 
 R -e "install.packages(c('shiny','doParallel'), repos='http://cran.rstudio.com/')"
 
-useradd ec2-user
-echo ec2-user:RisGreat | sudo chpasswd 
+useradd test
+echo test:test | chpasswd 
 
 yum install -y git
-git clone https://github.com/alexcengler/aws-workshop.git
+git clone https://github.com/alexcengler/aws-workshop.git /home/ec2-user/aws-workshop
