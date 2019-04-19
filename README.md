@@ -3,7 +3,7 @@ Materials for an introductory AWS Workshop, originally made for my course, Large
 
 Setup instructions - necessary before starting the workshop - are below.
 
-## Setup
+## Required Setup
 Please follow the steps below in preparation for the Amazon Web Services Workshop:
 * Go to https://aws.amazon.com/
 * Click Create an Account  and follow the ensuing instructions. Note you will have to: 
@@ -14,6 +14,7 @@ Please follow the steps below in preparation for the Amazon Web Services Worksho
 
 ## Windows Users Additional Setup: Install Putty and PuttyGen
 Windows users will need to use Putty and PuttyGen in order to use remote login through Secure Shell (SSH) to access you AWS resources. Go ahead and install Putty (which also installs PuttyGen).
+
 
 
 ## (Optional) Requesting Funding
