@@ -1,7 +1,7 @@
 ---
 title: 'LSDM Workshop: AWS and DevOps'
 author: "Alex C. Engler"
-date: "10/15/2018"
+date: "4/24/2019"
 output: html_document
 ---
 
@@ -13,7 +13,7 @@ output: html_document
 - Installations in Linux Environments
 - AWS File Storage (S3, EBS, Instance Store, EFS)
 - The AWS Command Line Interface (CLI) and Boto3 SDK
-
+- Deploying & Querying a CoreNLP Server
 -----
 
 First, open the AWS Console and navigate to the Elastic Cloud Compute (EC2) page. There, proceed to launch a new instance.
@@ -220,4 +220,86 @@ And then you should be able to ssh into the machine as normal. Alternatively you
 
 ```bash
 ssh -i "aws-workshop.pem" ec2-user@DNS
+```
+
+### Stanford CoreNLP
+
+Included below are thorough instructions on how to install CoreNLP on an AWS EC2 instance, with only minimal requirements of the student (constructing the AWS CLI command, security group, choosing an EC2 instance, etc).   Before starting, you should take a minute to [read about the basics of CoreNLP](https://stanfordnlp.github.io/CoreNLP/).
+
+Please note this launches an EC2 instance running the Ubuntu AMI (a different AMI than we used in class), which you either specify at the command line or choose on the first page of options when you launch an EC2 instance from the AWS console. The AMI ID for the Ubuntu Server 18.04 LTS (HVM) is `ami-0782e9ee97725263d`. Further note that if you decide to SSH into this machine, you need to point SSH to `ubuntu@dns` to do so (rather than `ec2-user@dns` like we did in class), though you do not need to SSH into the machine to complete this assignment.
+
+### CoreNLP Server Setup Instructions
+
+Follow the ensuing instructions in order to setup an elastic CoreNLP Server.
+
+First, create a file called `CoreNLP.sh` the includes the following bash script. You will need to pass this into your AWS CLI command to launch the CoreNLP Server.
+
+```bash
+#!/bin/bash 
+set -x –e
+
+apt-get update -y
+apt-get install -y default-jre
+
+wget http://nlp.stanford.edu/software/stanford-corenlp-full-2018-10-05.zip
+
+apt install unzip
+unzip stanford-corenlp-full-2018-10-05.zip
+
+cd stanford-corenlp-full-2018-10-05
+
+for file in `find . -name "*.jar"`; do export
+CLASSPATH="$CLASSPATH:`realpath $file`"; done 
+
+java -mx4g -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer -port 9000
+```
+
+Stanford's CoreNLP uses a lot of memory, so choose an instance with at least 8GB of memory.
+
+Create a new security group for your CoreNLP server, at the very least opening up a port for ssh (though you may not need to do that) and the port for CoreNLP Server.
+
+Write an AWS CLI command to launch an EC2 instance that:
+- Runs the `CoreNLP.sh`, making sure use the following syntax precisely: `file://CoreNLP.sh` (the `file://` is unusual but required exactly as is).
+- Assigns the CoreNLP Security Group - please note you must use the security group ID, which starts with `sg-` following by a long unique identifier. This is different than the name you give the security group.
+- Uses the Ubuntu Server 18.04 LTS (HVM), SSD Volume Type, which uses `ami-0f65671a86f061fcd` 
+- Employs a keypair for secure access
+
+Please 
+
+#### Testing the Server
+
+If you visit the url `DNS:9000` you should see a screen that looks like this:
+
+![](images/blank.png)
+
+If you manually enter a sentence, you will see a result that looks like the image below. Note the first request you send towards it will cause it to wait a bit (as it installs further dependencies in response to your requests). Just give it a few minutes.
+
+![](images/nlp.png)
+
+
+#### Testing the API
+
+At this stage, you should now be able to send API calls to the CoreNLP server and receive results. There is a brief example in R below (you have to learn the Python yourself).
+
+```{R}
+library(xml2)
+library(XML)
+library(httr)
+
+url <- "http://ec2-18-224-67-228.us-east-2.compute.amazonaws.com:9000/"
+
+query_properties <- '{"annotators": "tokenize,ssplit,lemma,pos,ner,depparse,openie,sentiment"}'
+test <- "I can analyze all the documents! I am a god!"
+
+r <- POST(url, query = list(properties = query_properties), body =  test, encode = "form")
+attributes(r)
+
+r$url ## See the URL constructed by the POST request
+r$status_code ## See the returned status code (200 is good)
+
+r_cont <- content(r)
+class(r_cont)
+
+length(r_cont$sentences)
+print(r_cont$sentences[[1]]$sentiment)
 ```
