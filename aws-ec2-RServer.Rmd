@@ -286,7 +286,7 @@ library(xml2)
 library(XML)
 library(httr)
 
-url <- "http://ec2-18-224-67-228.us-east-2.compute.amazonaws.com:9000/"
+url <- "http://ec2-18-224-21-225.us-east-2.compute.amazonaws.com:9000/"
 
 query_properties <- '{"annotators": "tokenize,ssplit,lemma,pos,ner,depparse,openie,sentiment"}'
 test <- "I can analyze all the documents! I am a god!"
