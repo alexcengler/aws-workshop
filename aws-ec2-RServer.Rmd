@@ -13,7 +13,8 @@ output: html_document
 - Installations in Linux Environments
 - AWS File Storage (S3, EBS, Instance Store, EFS)
 - The AWS Command Line Interface (CLI) and Boto3 SDK
-- Deploying & Querying a CoreNLP Server
+- Deploying & Querying a CoreNLP Server 
+
 -----
 
 First, open the AWS Console and navigate to the Elastic Cloud Compute (EC2) page. There, proceed to launch a new instance.
@@ -28,7 +29,7 @@ For now, select 'Amazon Linux AMI 2018.03.0 (HVM), SSD Volume Type'.
 
 An AWS instance is a pre-set combination of hardware, mostly focussed on memory and processors. Different families of instance types are specialized for different tasks. For example, the C-family of instances is optimized for computation. The R-family of instances is best optimized for memory. AWS document has lots of material [on their instance types](https://aws.amazon.com/ec2/instance-types/) as well as [their pricing](https://aws.amazon.com/ec2/pricing/), which is billed per-second in most cases.
 
-For now, select 't2.medium'.
+For now, select 't3.small'.
 
 #### AWS Storage
 
@@ -54,14 +55,16 @@ A security group is a set of configuration settings that detail what ports can b
 #### AWS Command Line Interface (CLI)
 
 `aws help`
+
 `aws ec2 help`
 
 `aws ec2 describe-instances`
+
 `aws ec2 describe-instances help`
 
 The `--query` argument allows you to explore the output from AWS CLI commands.
 
-`aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId,ImageId]'`
+  `aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId,ImageId]'`
 
 Get the Public DNS Name:
 
@@ -71,17 +74,23 @@ Return the Availability Zone, State, Instance Type, KeyName, and Instance Id of 
 
 `aws ec2 describe-instances --query 'Reservations[*].Instances[*].[Placement.AvailabilityZone, State.Name, InstanceType, KeyName, InstanceId]' --output text |  grep running`
 
+Or return those of a specific instance type:
+
+`aws ec2 describe-instances --query 'Reservations[*].Instances[*].[Placement.AvailabilityZone, State.Name, InstanceType, KeyName, InstanceId]' --output text |  grep t3`
+
+
+
 
 #### SSH (Secure Shell) Protocol
 
-SSH is an [implementation of public key cryptography](https://winscp.net/eng/docs/ssh_keys ). The key you have downloaded is the private key, which you should not share with anyone else. The public key is registered to the remote server (the EC2 isntance) and is used to validate your private key, ensuring you are who you say you are and granting access to the remote server. Together, these keys make up a key-pair.
+SSH is an [implementation of public key cryptography](https://winscp.net/eng/docs/ssh_keys ). The key you have downloaded is the private key, which you should not share with anyone else. The public key is registered to the remote server (the EC2 instance) and is used to validate your private key, ensuring you are who you say you are and granting access to the remote server. Together, these keys make up a key-pair.
 
 SHH encrypts data exchanged across an insecure network – allowing you to easily and securely work across multiple computers from one location. While Mac OsX has a native SSH client, Windows users will need to [download Putty](https://www.putty.org/).
 
 You likely need to change the permissions for your AWS key:
 
 ```bash
-chmod 400 aws-workshop.pem`
+chmod 400 aws-workshop.pem
 ```
 
 Then SSH into the EC2 Node (the -i flag creates an interactive shell). `ec2-user` is the default user for AWS Amazon Machine Images, whereas an Ubuntu Linux machine will have a default user of `ubuntu` and the default user name of `hadoop` for AMS Elastic MapReduce (EMR). 
@@ -93,7 +102,7 @@ ssh -i keyname.pem ec2-user@instance-DNS
 This might looks like this:
 
 ```bash
-ssh -i aws-workshop.pem ec2-user@ec2-58-214-143-126.us-east-2.compute.amazonaws.com
+ssh -i aws-workshop.pem ec2-user@ec2-3-14-70-93.us-east-2.compute.amazonaws.com
 ```
 
 Note, the ec2-user is specific to the AWS version of Linux for EC2. Using AWS Elastic MapReduce, you'd need to use the user `hadoop`, and using an Ubuntu version of Linux, you'd need to use `Ubuntu`.
@@ -101,7 +110,7 @@ Note, the ec2-user is specific to the AWS version of Linux for EC2. Using AWS El
 
 #### Installations in Linux
 
-he AWS Linux AMI is based off of Red Hat, which means it uses Red Hat’s package installation systems. Specifically yum (Yellowdog Update Modifier) and rpm (RedHat Package Manager). We will use yum for now, as it adds package management features on top of rpm (however note yum lets you install .rpm files). You can read more about [basic yum functionality here](https://www.thegeekstuff.com/2011/08/yum-command-examples/?utm_source=feedburner).
+The AWS Linux AMI is based off of Red Hat, which means it uses Red Hat’s package installation systems. Specifically yum (Yellowdog Update Modifier) and rpm (RedHat Package Manager). We will use yum for now, as it adds package management features on top of rpm (however note yum lets you install .rpm files). You can read more about [basic yum functionality here](https://www.thegeekstuff.com/2011/08/yum-command-examples/?utm_source=feedburner).
 
 ```bash
 sudo yum update 
@@ -147,15 +156,17 @@ DNS:8787
 This might look like:
 
 ```bash
-http://ec2-12-206-187-37.us-east-2.compute.amazonaws.com:8787/
+ec2-user@ec2-3-14-70-93.us-east-2.compute.amazonaws.com:8787/
 ```
 
 #### Bringing in Data and Code
 
-You can use the AWS CLI in your remote machine as well, below copying in a file from  one of my S3 buckets. This is possible since I made made this S3 bucket public, but you could also grant your remote machine with AWS credentials. Given the incredibly open access settings we created for this machine, that is likely to be a very bad idea.
+You can use the AWS CLI in your remote machine as well, below copying some R code and data from  one of my S3 buckets. This is only going to work if grant your remote machine with AWS credentials. Given the incredibly open access settings we created for this machine, that is likely to be a very bad idea.
 
 ```bash
 aws s3 cp s3://lsdm-util/parallel-RF.R ./
+aws s3 cp s3://lsdm-util/wapo-police.R ./
+aws s3 cp s3://lsdm-util/fatal-police-shootings-data.csv ./wapo-data.csv
 ```
 
 Instead, let's install Git and clone a repository with some R code in it.
@@ -202,7 +213,7 @@ yum install rstudio-server-rhel-1.1.456-x86_64.rpm -y
 
 rm rstudio-server-rhel-1.1.456-x86_64.rpm
 
-R -e "install.packages(c('shiny','doParallel'), repos='http://cran.rstudio.com/')"
+R -e "install.packages(c('shiny','doParallel','caret'), repos='http://cran.rstudio.com/')"
 
 useradd test
 echo test:test_pw | chpasswd 
@@ -211,7 +222,7 @@ yum install -y git
 git clone https://github.com/alexcengler/aws-workshop.git /home/test/aws-workshop
 ```
 
-Having done this and saved the file as `ec2-rserver.sh`, we can use `aws ec2 run-instances` to run through the entire process of automating our cloud machine launch. 
+Having done this and saved the file as `ec2-rserver.sh`, we can use `aws ec2 run-instances` to run through the entire process of automating our cloud machine launch.
 
 ```bash
 aws ec2 run-instances --image-id ami-0b59bfac6be064b78 --count 1 --instance-type t3.small --key-name aws-workshop --security-group-ids sg-0f3fa78cdd06d68f7 --user-data file://ec2-rserver.sh
@@ -224,7 +235,7 @@ ssh -i "aws-workshop.pem" ec2-user@DNS
 
 ### Stanford CoreNLP
 
-Included below are thorough instructions on how to install CoreNLP on an AWS EC2 instance, with only minimal requirements of the student (constructing the AWS CLI command, security group, choosing an EC2 instance, etc).   Before starting, you should take a minute to [read about the basics of CoreNLP](https://stanfordnlp.github.io/CoreNLP/).
+Included below are thorough instructions on how to install CoreNLP on an AWS EC2 instance, with only minimal requirements of the student (constructing the AWS CLI command, security group, choosing an EC2 instance, etc). Before starting, you should take a minute to [read about the basics of CoreNLP](https://stanfordnlp.github.io/CoreNLP/).
 
 Please note this launches an EC2 instance running the Ubuntu AMI (a different AMI than we used in class), which you either specify at the command line or choose on the first page of options when you launch an EC2 instance from the AWS console. The AMI ID for the Ubuntu Server 18.04 LTS (HVM) is `ami-0782e9ee97725263d`. Further note that if you decide to SSH into this machine, you need to point SSH to `ubuntu@dns` to do so (rather than `ec2-user@dns` like we did in class), though you do not need to SSH into the machine to complete this assignment.
 
@@ -264,8 +275,6 @@ Write an AWS CLI command to launch an EC2 instance that:
 - Uses the Ubuntu Server 18.04 LTS (HVM), SSD Volume Type, which uses `ami-0f65671a86f061fcd` 
 - Employs a keypair for secure access
 
-Please 
-
 #### Testing the Server
 
 If you visit the url `DNS:9000` you should see a screen that looks like this:
@@ -279,15 +288,16 @@ If you manually enter a sentence, you will see a result that looks like the imag
 
 #### Testing the API
 
-At this stage, you should now be able to send API calls to the CoreNLP server and receive results. There is a brief example in R below (you have to learn the Python yourself).
+At this stage, you should now be able to send API calls to the CoreNLP server and receive results. There is a brief example in R below.
 
 ```{R}
 library(xml2)
 library(XML)
 library(httr)
 
-url <- "http://ec2-18-224-21-225.us-east-2.compute.amazonaws.com:9000/"
+url <- "http://ec2-3-14-7-41.us-east-2.compute.amazonaws.com:9000/"
 
+## Define the annotators, meaning what CoreNLP functions to run on the text.
 query_properties <- '{"annotators": "tokenize,ssplit,lemma,pos,ner,depparse,openie,sentiment"}'
 test <- "I can analyze all the documents! I am a god!"
 
@@ -301,5 +311,16 @@ r_cont <- content(r)
 class(r_cont)
 
 length(r_cont$sentences)
-print(r_cont$sentences[[1]]$sentiment)
+print(r_cont$sentences[[2]]$sentiment)
+```
+
+CoreNLP's Annotators are functions that operate CoreNLP's main functionality. Above, the query is calling the annotators for tokenization, sentence split, lemmatization, parts-of-speech tagging, named entity recognition, dependency parsing, open information exraction, and sentiment analysis. There are more, which you can see in [this CoreNLP Introduction](http://www.sfs.uni-tuebingen.de/~keberle/NLPTools/presentations/CoreNLP/CoreNLP_introduction.pdf).
+
+
+### AWS CLI Command for CoreNLP Server
+
+The answer to the prompt above:
+
+```bash
+aws ec2 run-instances --image-id ami-0f65671a86f061fcd --count 1 --instance-type t2.xlarge --key-name aws-workshop --security-group-ids sg-05a485114a1038823 --user-data file://CoreNLP.sh 
 ```
