@@ -297,6 +297,7 @@ Similarly, you can use the `Export` option under the `More` dropdown to copy new
 ### Infrastructure as Code
 
 Instead of working through this long process manually, we can use the AWS command line and a bash script to automate the entire process. We use `aws ec2 run-instances` with an image-id (this is the AWS Linux Machine Image), a count (number of instances), the instance type, the private key name, and an id for the security group. 
+
 You will need to do two things for this to work:
 
  - Change the security-group-ids flag to the code associated with the security group you created. You can see these codes under 'Security Groups' on the 'EC2' page in the AWS console. [This link may work](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#SecurityGroups:).
@@ -329,11 +330,10 @@ rm rstudio-server-rhel-1.1.456-x86_64.rpm
 
 R -e "install.packages(c('doParallel','foreach'), repos='http://cran.rstudio.com/')"
 
-useradd test
-echo test:test_pw | chpasswd
+echo ec2-user:test | chpasswd 
 
 yum install -y git
-git clone https://github.com/alexcengler/aws-workshop.git /home/test/aws-workshop
+git clone https://github.com/alexcengler/aws-workshop.git /home/ec2-user/aws-workshop
 ```
 
 Having done this, we can then add the `--user-data` flag to our `aws ec2 run-instances` command. We will pass out .sh file to the `--user-data` flag, which signals that this code should be run on the EC2 instance after it is launched.

@@ -571,7 +571,8 @@ git clone https://github.com/alexcengler/aws-workshop.git</code></pre>
 </div>
 <div id="infrastructure-as-code" class="section level3">
 <h3>Infrastructure as Code</h3>
-<p>Instead of working through this long process manually, we can use the AWS command line and a bash script to automate the entire process. We use <code>aws ec2 run-instances</code> with an image-id (this is the AWS Linux Machine Image), a count (number of instances), the instance type, the private key name, and an id for the security group. You will need to do two things for this to work:</p>
+<p>Instead of working through this long process manually, we can use the AWS command line and a bash script to automate the entire process. We use <code>aws ec2 run-instances</code> with an image-id (this is the AWS Linux Machine Image), a count (number of instances), the instance type, the private key name, and an id for the security group.</p>
+<p>You will need to do two things for this to work:</p>
 <ul>
 <li>Change the security-group-ids flag to the code associated with the security group you created. You can see these codes under ‘Security Groups’ on the ‘EC2’ page in the AWS console. <a href="https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#SecurityGroups:">This link may work</a>.</li>
 <li>Make sure you are in the same working directory as your <code>AWS-DSPP-KeyPair.pem</code> file and that it is named exactly the same. If it is not named the same, please change the name.</li>
@@ -599,11 +600,10 @@ rm rstudio-server-rhel-1.1.456-x86_64.rpm
 
 R -e &quot;install.packages(c('doParallel','foreach'), repos='http://cran.rstudio.com/')&quot;
 
-useradd test
-echo test:test_pw | chpasswd
+echo ec2-user:test | chpasswd 
 
 yum install -y git
-git clone https://github.com/alexcengler/aws-workshop.git /home/test/aws-workshop</code></pre>
+git clone https://github.com/alexcengler/aws-workshop.git /home/ec2-user/aws-workshop</code></pre>
 <p>Having done this, we can then add the <code>--user-data</code> flag to our <code>aws ec2 run-instances</code> command. We will pass out .sh file to the <code>--user-data</code> flag, which signals that this code should be run on the EC2 instance after it is launched.</p>
 <pre class="bash"><code>aws ec2 run-instances --image-id ami-09a5b0b7edf08843d --count 1 --instance-type t3.small --key-name AWS-DSPP-KeyPair --security-group-ids sg-0258951dfe0eb4a38 --user-data file://ec2-rserver.sh</code></pre>
 <p>And then you should be able to ssh into the machine as normal. Alternatively you can visit the RStudio Server at <code>instance_public_DNS:8787</code> and login with username ‘test’ and password ‘test_pw’. Please note it might take 5 or so minutes for the new instance to go through these installations.</p>
