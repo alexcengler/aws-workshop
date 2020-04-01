@@ -58,7 +58,7 @@ Tags allow you to associate instances with a specific code. This is used by orga
 
 **Nothing to do on this page, click "Next: Configure Security Group."
 
-### Step 6: Configuring the Security Group
+#### Step 6: Configuring the Security Group
 
 A security group is a set of configuration settings that detail what ports can be accessed over the internet. A port it an access point to a computer (instance/server/machine). By default, all ports are closed and inaccessible, except for port 22 to enable SSH access (more on this shortly).
 
@@ -74,7 +74,7 @@ Note: your IP changes when you move between wifi networks, or even sometimes whe
 
 Give the security group a name and description, and click "Review and Launch."
 
-### Step 7: Review Instance Launch
+#### Step 7: Review Instance Launch
 
 Review the details you choose and click "Launch", which leads us to one more step.
 
@@ -117,6 +117,9 @@ Get the Public DNS Name:
 `aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName'`
 
 You can see more examples of [using describe-instances in the AWS documentation](https://docs.aws.amazon.com/cli/latest/reference/ec2/describe-instances.html).
+
+
+
 
 ## Accessing our EC2 Instance
 
@@ -197,7 +200,7 @@ Notes:
  - `ec2-user` is the default user for this type of AWS instance.
  - the -y flag lets us skip a prompt that asks if we trust the computer we are reaching out to (we do). 
 
-### Installing Software in Your AWS Instance
+## Installing Software in Your AWS Instance
 
 The AWS Linux AMI is based off of Red Hat, which means it uses Red Hat’s package installation systems. Specifically yum (Yellowdog Update Modifier) and rpm (RedHat Package Manager). We will use yum for now, as it adds package management features on top of rpm (however note yum lets you install .rpm files). You can read more about [basic yum functionality here](https://www.thegeekstuff.com/2011/08/yum-command-examples/?utm_source=feedburner).
 
@@ -251,9 +254,9 @@ This might look like:
 ec2-54-152-137-101.compute-1.amazonaws.com:8787/
 ```
 
-#### Bringing in Data and Code
+## Bringing in Data and Code
 
-##### 1. AWS CLI
+#### 1. AWS CLI
 
 You can use the AWS CLI in your remote machine as well, below copying some R code and data from  one of my S3 buckets. This is only going to work if you grant your remote machine with AWS credentials (i.e. going through the `aws configure` steps).
 
@@ -262,7 +265,7 @@ aws s3 cp s3://lsdm-util/wapo-police.R ./
 aws s3 cp s3://lsdm-util/fatal-police-shootings-data.csv ./wapo-data.csv
 ```
 
-##### 2. Git
+#### 2. Git
 
 Instead, let's install Git and clone a repository with some R code in it.
 
@@ -273,7 +276,7 @@ git clone https://github.com/alexcengler/aws-workshop.git
 
 If you now refresh the file, you'll now see the github repo in the file directory for R, allowing you to open the R code that was in the repo.
 
-##### 3. RStudio
+#### 3. RStudio
 
 If we add data to AWS S3 and **make the bucket public** we can read it directly into R, like below/ Note that the bucket name is `dspp-test-bucket`.
 
