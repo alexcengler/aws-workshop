@@ -131,11 +131,6 @@ SHH encrypts data exchanged across an insecure network – allowing you to easil
 
 Open Terminal or Command Prompt, and navigate to where you put your key-pair.
 
-Then change the permissions for your AWS key:
-
-```{bash eval=FALSE}
-chmod 400 AWS-DSPP-KeyPair.pem
-```
 
 ### SSH'ing into the EC2 Machine (Windows)
 
@@ -154,11 +149,11 @@ This is based off this AWS guidance to [connecting using Putty](https://docs.aws
  
  - Open PuTTY
  - Choose Session from the list of menus on the left and complete the following fields:
-    - ec2-user@instance_public_DNS
+    - Host is ec2-user@instance_public_DNS
     - Port value is 22.
     - Under Connection type, select SSH.
  
-**Instance-DNS needs to be changed to the actual ID for the instance you launched. You can find that on the [EC2 page](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Instances) within the AWS Console.** That might look like this:
+**Instance-DNS needs to be changed to the actual ID for the instance you launched. You can find that on the [EC2 page](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Instances) within the AWS Console.** That might look like this: `ec2-54-152-137-101.compute-1.amazonaws.com`
 
  - Choose Connection from the list of menus on the left, click the SSH menu under that
   - Choose Browse
@@ -168,7 +163,13 @@ This is based off this AWS guidance to [connecting using Putty](https://docs.aws
 
 ### SSH'ing into the EC2 Machine (Mac)
 
-First, use terminal to navigate to the same directory as your `AWS-DSPP-KeyPair.pem` file.  Then, to SSH in from a Mac, you will need to change the below command and run it in terminal.
+First, use terminal to navigate to the same directory as your `AWS-DSPP-KeyPair.pem` file. Then change the permissions for your AWS key:
+
+```{bash eval=FALSE}
+chmod 400 AWS-DSPP-KeyPair.pem
+```
+
+Next, to SSH in from a Mac, you will need to change the below command and run it in terminal.
 
 ```{bash eval=FALSE}
 ssh -i AWS-DSPP-KeyPair.pem ec2-user@instance_public_DNS -y
@@ -238,8 +239,7 @@ sudo R -e "head(mtcars)"
 We can also add a new user to the machine, which is automatically granted R Studio access (this is a useful feature of R Studio).
 
 ```{bash eval=FALSE}
-sudo useradd test
-echo ec2-user:test_pw | sudo chpasswd 
+echo ec2-user:test | sudo chpasswd 
 ```
 
 At this stage, you can use your web browser to actually visit the R Studio GUI, where you could run R code as you would normally, except it will be running on the remote cloud machine. To do this, simply go to the a url composed of the instance's public DNS, a colon, and then the port number (8787).

@@ -463,8 +463,6 @@ summary {
 <p>SSH is an <a href="https://winscp.net/eng/docs/ssh_keys">implementation of public key cryptography</a>. The key you have downloaded is the private key, which you should not share with anyone else. The public key is registered to the the EC2 instance (you did this as the last step beore launching) and is used to validate your private key, ensuring you are who you say you are and granting access to the remote server. Together, these keys make up a key-pair.</p>
 <p>SHH encrypts data exchanged across an insecure network – allowing you to easily and securely work across multiple computers from one location. While Mac OsX has a native SSH client, Windows users will need to <a href="https://www.putty.org/">use Putty</a>.</p>
 <p>Open Terminal or Command Prompt, and navigate to where you put your key-pair.</p>
-<p>Then change the permissions for your AWS key:</p>
-<pre class="bash"><code>chmod 400 AWS-DSPP-KeyPair.pem</code></pre>
 </div>
 <div id="sshing-into-the-ec2-machine-windows" class="section level3">
 <h3>SSH’ing into the EC2 Machine (Windows)</h3>
@@ -486,12 +484,12 @@ summary {
 <li>Open PuTTY</li>
 <li>Choose Session from the list of menus on the left and complete the following fields:
 <ul>
-<li><a href="mailto:ec2-user@instance_public_DNS" class="email">ec2-user@instance_public_DNS</a></li>
+<li>Host is <a href="mailto:ec2-user@instance_public_DNS" class="email">ec2-user@instance_public_DNS</a></li>
 <li>Port value is 22.</li>
 <li>Under Connection type, select SSH.</li>
 </ul></li>
 </ul>
-<p><strong>Instance-DNS needs to be changed to the actual ID for the instance you launched. You can find that on the <a href="https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Instances">EC2 page</a> within the AWS Console.</strong> That might look like this:</p>
+<p><strong>Instance-DNS needs to be changed to the actual ID for the instance you launched. You can find that on the <a href="https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Instances">EC2 page</a> within the AWS Console.</strong> That might look like this: <code>ec2-54-152-137-101.compute-1.amazonaws.com</code></p>
 <ul>
 <li>Choose Connection from the list of menus on the left, click the SSH menu under that</li>
 <li>Choose Browse</li>
@@ -503,7 +501,9 @@ summary {
 </div>
 <div id="sshing-into-the-ec2-machine-mac" class="section level3">
 <h3>SSH’ing into the EC2 Machine (Mac)</h3>
-<p>First, use terminal to navigate to the same directory as your <code>AWS-DSPP-KeyPair.pem</code> file. Then, to SSH in from a Mac, you will need to change the below command and run it in terminal.</p>
+<p>First, use terminal to navigate to the same directory as your <code>AWS-DSPP-KeyPair.pem</code> file. Then change the permissions for your AWS key:</p>
+<pre class="bash"><code>chmod 400 AWS-DSPP-KeyPair.pem</code></pre>
+<p>Next, to SSH in from a Mac, you will need to change the below command and run it in terminal.</p>
 <pre class="bash"><code>ssh -i AWS-DSPP-KeyPair.pem ec2-user@instance_public_DNS -y</code></pre>
 <p><strong>instance_public_DNS needs to be changed to the actual ID for the instance you launched. You can find that oi two different ways.</strong> One option is to run the following line in terminal:</p>
 <pre class="bash"><code>aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName'</code></pre>
@@ -538,8 +538,7 @@ ls</code></pre>
 <pre class="bash"><code>sudo R -e &quot;5 + 25&quot;
 sudo R -e &quot;head(mtcars)&quot;</code></pre>
 <p>We can also add a new user to the machine, which is automatically granted R Studio access (this is a useful feature of R Studio).</p>
-<pre class="bash"><code>sudo useradd test
-echo ec2-user:test_pw | sudo chpasswd </code></pre>
+<pre class="bash"><code>echo ec2-user:test | sudo chpasswd </code></pre>
 <p>At this stage, you can use your web browser to actually visit the R Studio GUI, where you could run R code as you would normally, except it will be running on the remote cloud machine. To do this, simply go to the a url composed of the instance’s public DNS, a colon, and then the port number (8787).</p>
 <pre class="bash"><code>instance_public_DNS:8787</code></pre>
 <p>This might look like:</p>
