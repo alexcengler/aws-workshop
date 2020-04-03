@@ -605,7 +605,7 @@ yum install -y git
 git clone https://github.com/alexcengler/aws-workshop.git /home/ec2-user/aws-workshop</code></pre>
 <p>Having done this, we can then add the <code>--user-data</code> flag to our <code>aws ec2 run-instances</code> command. We will pass out .sh file to the <code>--user-data</code> flag, which signals that this code should be run on the EC2 instance after it is launched.</p>
 <pre class="bash"><code>aws ec2 run-instances --image-id ami-09a5b0b7edf08843d --count 1 --instance-type t3.small --key-name AWS-DSPP-KeyPair --security-group-ids sg-0258951dfe0eb4a38 --user-data file://ec2-rserver.sh</code></pre>
-<p>And then you should be able to ssh into the machine as normal. Alternatively you can visit the RStudio Server at <code>instance_public_DNS:8787</code> and login with username ‘test’ and password ‘test_pw’. Please note it might take 5 or so minutes for the new instance to go through these installations.</p>
+<p>And then you should be able to ssh into the machine as normal. Alternatively you can visit the RStudio Server at <code>instance_public_DNS:8787</code> and login with username ‘ec2-user’ and password ‘tset’. Please note it might take 5 or so minutes for the new instance to go through these installations.</p>
 <pre class="bash"><code>ssh -i AWS-DSPP-KeyPair.pem ec2-user@DNS</code></pre>
 </div>
 </div>

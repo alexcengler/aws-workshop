@@ -342,7 +342,7 @@ Having done this, we can then add the `--user-data` flag to our `aws ec2 run-ins
 aws ec2 run-instances --image-id ami-09a5b0b7edf08843d --count 1 --instance-type t3.small --key-name AWS-DSPP-KeyPair --security-group-ids sg-0258951dfe0eb4a38 --user-data file://ec2-rserver.sh
 ```
 
-And then you should be able to ssh into the machine as normal. Alternatively you can visit the RStudio Server at  `instance_public_DNS:8787` and login with username 'test' and password 'test_pw'. Please note it might take 5 or so minutes for the new instance to go through these installations.
+And then you should be able to ssh into the machine as normal. Alternatively you can visit the RStudio Server at  `instance_public_DNS:8787` and login with username 'ec2-user' and password 'tset'. Please note it might take 5 or so minutes for the new instance to go through these installations.
 
 ```{bash eval=FALSE}
 ssh -i AWS-DSPP-KeyPair.pem ec2-user@DNS
